@@ -1,9 +1,9 @@
 import './styles.css';
 import { Stage, webglAvailable } from './scene/stage';
 import { ecgValue } from './scene/ecg';
-import { GROUP_COLOR, ORGAN_ORDER, type OrganKey } from './content/groups';
-import { ORGANS, LAST_REVIEWED } from './content/organs';
-import { renderNav, renderPanel, renderAbout, renderLegend, formatDate, organName } from './ui/render';
+import { ORGAN_ORDER, type OrganKey } from './content/groups';
+import { ORGANS } from './content/organs';
+import { renderNav, renderPanel, renderAbout, renderLegend, organName } from './ui/render';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
@@ -18,8 +18,6 @@ const live = $<HTMLElement>('#live');
 const about = $<HTMLDialogElement>('#about');
 const legend = $<HTMLDialogElement>('#legend');
 
-$<HTMLTimeElement>('#reviewed').textContent = formatDate(LAST_REVIEWED);
-$<HTMLTimeElement>('#reviewed').dateTime = LAST_REVIEWED;
 renderNav(nav);
 about.innerHTML = renderAbout();
 legend.innerHTML = renderLegend();
@@ -38,8 +36,7 @@ if (webglAvailable()) {
     onHover: (organ, x, y) => {
       if (!organ) { tooltip.hidden = true; return; }
       tooltip.hidden = false;
-      tooltip.style.setProperty('--c', GROUP_COLOR[organ]);
-      tooltip.innerHTML = `<b>${organName(organ)}</b> · select to explore`;
+      tooltip.textContent = organName(organ);
       tooltip.style.left = `${x}px`;
       tooltip.style.top = `${y}px`;
     },
@@ -59,12 +56,13 @@ function syncInset() {
   if (!current) {
     // On phones the headline sits above the figure, so frame the body below it.
     const top = mobileQuery.matches ? Math.min(0.42, (hero.getBoundingClientRect().bottom + 8) / innerHeight) : 0;
-    const bottom = (innerHeight - nav.getBoundingClientRect().top + (mobileQuery.matches ? 4 : -24)) / innerHeight;
+    const bottom = mobileQuery.matches ? (innerHeight - nav.getBoundingClientRect().top + 4) / innerHeight : 0.02;
     stage.setInset(0, bottom, top);
     return;
   }
   if (mobileQuery.matches) {
-    stage.setInset(0, panel.getBoundingClientRect().height / innerHeight);
+    const bar = document.querySelector('.topbar')!.getBoundingClientRect().bottom;
+    stage.setInset(0, panel.getBoundingClientRect().height / innerHeight, bar / innerHeight);
   } else {
     const r = panel.getBoundingClientRect();
     stage.setInset((innerWidth - r.left) / innerWidth, 0);
@@ -159,8 +157,7 @@ for (const d of [about, legend]) {
 window.addEventListener('resize', () => syncInset());
 syncInset();
 
-// ECG drawing for the desktop monitor and the heart panel.
-const monitorCanvas = $<HTMLCanvasElement>('#ecg');
+// Heart trace in the heart panel: a bone-coloured line whose leading edge carries the signal colour.
 function drawEcg(c: HTMLCanvasElement, t: number) {
   const dpr = Math.min(devicePixelRatio, 2);
   const w = c.clientWidth, h = c.clientHeight;
@@ -169,39 +166,34 @@ function drawEcg(c: HTMLCanvasElement, t: number) {
   const g = c.getContext('2d')!;
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.clearRect(0, 0, w, h);
-  const windowS = 3.2;
+  g.strokeStyle = 'rgba(236,233,226,0.09)';
+  g.lineWidth = 1;
+  g.beginPath(); g.moveTo(0, h * 0.62 + 0.5); g.lineTo(w, h * 0.62 + 0.5); g.stroke();
+  const windowS = 3.6;
   const grad = g.createLinearGradient(0, 0, w, 0);
-  grad.addColorStop(0, 'rgba(255,79,109,0)');
-  grad.addColorStop(0.75, 'rgba(255,79,109,0.9)');
-  grad.addColorStop(1, '#ffd0d8');
+  grad.addColorStop(0, 'rgba(236,233,226,0)');
+  grad.addColorStop(0.55, 'rgba(236,233,226,0.55)');
+  grad.addColorStop(0.97, 'rgba(226,88,74,1)');
   g.strokeStyle = grad;
-  g.lineWidth = 1.6;
+  g.lineWidth = 1.25;
   g.lineJoin = 'round';
   g.beginPath();
+  let lastY = 0;
   for (let x = 0; x <= w; x += 1) {
     const ts = t - windowS + (x / w) * windowS;
-    const y = h * 0.62 - ecgValue(ts) * h * 0.5;
-    if (x === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    lastY = h * 0.62 - ecgValue(ts) * h * 0.52;
+    if (x === 0) g.moveTo(x, lastY); else g.lineTo(x, lastY);
   }
   g.stroke();
+  g.fillStyle = '#e2584a';
+  g.beginPath(); g.arc(w - 1.5, lastY, 2, 0, Math.PI * 2); g.fill();
 }
 
 const t0 = performance.now();
 function ecgLoop() {
-  const t = (performance.now() - t0) / 1000;
-  if (!reduceQuery.matches) {
-    if (!mobileQuery.matches && !current) drawEcg(monitorCanvas, t);
-    const panelEcg = panelBody.querySelector<HTMLCanvasElement>('[data-ecg]');
-    if (panelEcg) drawEcg(panelEcg, t);
-  }
+  const c = panelBody.querySelector<HTMLCanvasElement>('[data-ecg]');
+  if (c) drawEcg(c, reduceQuery.matches ? 2.6 : (performance.now() - t0) / 1000);
   requestAnimationFrame(ecgLoop);
-}
-if (reduceQuery.matches) {
-  drawEcg(monitorCanvas, 2.4);
-  new MutationObserver(() => {
-    const c = panelBody.querySelector<HTMLCanvasElement>('[data-ecg]');
-    if (c) drawEcg(c, 2.4);
-  }).observe(panelBody, { childList: true });
 }
 requestAnimationFrame(ecgLoop);
 

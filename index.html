@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#04060b" />
+    <meta name="theme-color" content="#0c0c0d" />
     <meta name="color-scheme" content="dark" />
     <title>HUDAP · Human Data Platform</title>
     <meta name="description" content="An interactive map of the health data each organ generates, how AI turns it into clinical insight, and where wearables end and medical devices begin." />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ff4f6d'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%239fd9ff' stroke-opacity='.5' stroke-width='1.5' stroke-dasharray='2 3'/%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0c0d'/%3E%3Cpath d='M6 17h6l2-5 4 10 2-5h6' fill='none' stroke='%23ece9e2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
   </head>
   <body>
     <a class="skip" href="#organ-nav">Skip to organ list</a>
@@ -16,24 +16,23 @@
 
     <header class="topbar">
       <a class="brand" href="./" aria-label="HUDAP home">
-        <span class="brand-mark" aria-hidden="true"></span>
         <span class="brand-name">HUDAP</span>
+        <span class="brand-rule" aria-hidden="true"></span>
         <span class="brand-sub">Human Data Platform</span>
       </a>
       <nav class="topnav" aria-label="Site">
-        <button class="ghost" type="button" data-open="legend">Data origin</button>
-        <button class="ghost" type="button" data-open="about">Regulation &amp; method</button>
+        <button class="link" type="button" data-open="legend">Data origin</button>
+        <button class="link" type="button" data-open="about">Method</button>
       </nav>
     </header>
 
     <main id="main">
       <section class="hero" id="hero" aria-labelledby="hero-title">
-        <p class="eyebrow">Medica 2026 · “Humans as data platforms”</p>
-        <h1 id="hero-title">Your body is already<br /><span>a data platform.</span></h1>
+        <p class="eyebrow">Medica 2026 &mdash; Humans as data platforms</p>
+        <h1 id="hero-title">Your body is already <em>a data platform.</em></h1>
         <p class="hero-lede">
-          Explore what each organ generates, which AI tools turn it into clinical insight, and where wearables end and medical devices begin.
+          What each organ generates, which AI tools turn it into clinical insight, and where wearables end and medical devices begin.
         </p>
-        <p class="hero-hint"><span class="hint-dot" aria-hidden="true"></span><span class="hint-text">Drag to rotate · select an organ</span></p>
       </section>
 
       <nav class="organ-nav" id="organ-nav" aria-label="Organs"></nav>
@@ -43,20 +42,10 @@
         <div class="panel-scroll" id="panel-body" tabindex="-1"></div>
       </aside>
 
-      <div class="monitor" id="monitor" aria-hidden="true">
-        <div class="monitor-head"><span class="monitor-dot"></span><span>ECG · <b id="bpm">64</b> bpm</span><em>illustrative</em></div>
-        <canvas id="ecg" width="240" height="56"></canvas>
-      </div>
-
       <div class="tooltip" id="tooltip" role="presentation" hidden></div>
       <p class="sr-only" id="live" aria-live="polite"></p>
-      <noscript><p class="noscript">This experience needs JavaScript. The organ content is also summarised in the project README.</p></noscript>
+      <noscript><p class="noscript">This experience needs JavaScript.</p></noscript>
     </main>
-
-    <footer class="foot">
-      <span>Educational content, not medical advice. No personal data is collected.</span>
-      <span class="foot-date">Content reviewed <time id="reviewed"></time></span>
-    </footer>
 
     <dialog class="sheet" id="about" aria-labelledby="about-title"></dialog>
     <dialog class="sheet sheet-sm" id="legend" aria-labelledby="legend-title"></dialog>

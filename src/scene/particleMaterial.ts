@@ -62,7 +62,7 @@ const vertex = /* glsl */ `
     float recede = hasFocus * (1.0 - focused);
 
     float base = mix(1.0, 0.8, skin);
-    float size = uSize * base * (1.0 + 0.7 * emphasis) * (0.75 + 0.5 * aRand.y);
+    float size = uSize * base * (1.0 + 0.25 * emphasis) * (0.75 + 0.5 * aRand.y);
 
     // Blood: pulses travelling along the vessels.
     float blood = isGroup(g, 5.0);
@@ -73,10 +73,10 @@ const vertex = /* glsl */ `
     gl_PointSize = min(size * uPixelRatio * (1.0 / -mv.z), uMaxSize);
 
     vec3 col = uColors[int(g + 0.5)];
-    float alpha = 0.42 * skin + 0.5 * heart + 0.9 * isGroup(g, 2.0) + 0.38 * isGroup(g, 3.0) + 0.5 * lungs + 0.85 * blood;
+    float alpha = 0.4 * skin + 0.55 * heart + 0.32 * isGroup(g, 2.0) + 0.17 * isGroup(g, 3.0) + 0.22 * lungs + 0.42 * blood;
     // Fade dense organs as the camera approaches, so additive blending does not saturate.
     alpha *= mix(1.0, smoothstep(0.25, 1.6, -mv.z), 1.0 - skin);
-    alpha *= 1.0 + 0.6 * emphasis + blood * pulse * 0.8 + heart * uBeat * 0.6 * uMotion;
+    alpha *= 1.0 + mix(1.4, 0.5, heart) * emphasis + blood * pulse * 0.8 + heart * uBeat * 0.6 * uMotion;
     alpha *= mix(1.0, mix(0.16, 0.2, skin), recede);
     alpha *= k;
     vColor = col;
@@ -91,10 +91,10 @@ const fragment = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     float r = length(c);
     if (r > 0.5) discard;
-    float soft = smoothstep(0.5, 0.0, r);
-    float core = smoothstep(0.18, 0.0, r);
-    vec3 col = vColor + core * 0.35;
-    gl_FragColor = vec4(col, vAlpha * (soft * 0.75 + core * 0.5));
+    float soft = smoothstep(0.5, 0.2, r);
+    float core = smoothstep(0.22, 0.0, r);
+    vec3 col = vColor + core * 0.12;
+    gl_FragColor = vec4(col, vAlpha * (soft * 0.7 + core * 0.4));
   }
 `;
 
@@ -115,7 +115,7 @@ export function createParticleMaterial(): THREE.ShaderMaterial {
       uFocus: { value: -1 },
       uHover: { value: -1 },
       uPixelRatio: { value: 1 },
-      uSize: { value: 22 },
+      uSize: { value: 19 },
       uMaxSize: { value: 8 },
       uColors: { value: order.map((k) => new THREE.Color(GROUP_COLOR[k])) },
       uHeart: { value: ANCHORS.heart.clone() },

@@ -1,4 +1,4 @@
-import { GROUP_COLOR, ORGAN_ORDER, type OrganKey } from '../content/groups';
+import { ORGAN_ORDER, type OrganKey } from '../content/groups';
 import { ORGANS, ORIGIN_HELP, ORIGIN_LABEL, LAST_REVIEWED, type Organ, type Origin } from '../content/organs';
 import { FRAMEWORK, CONTEXT_SOURCES } from '../content/framework';
 
@@ -14,10 +14,17 @@ const ICON = {
 };
 
 export function renderNav(nav: HTMLElement) {
-  nav.innerHTML = ORGAN_ORDER.map((k) => {
+  nav.innerHTML = ORGAN_ORDER.map((k, i) => {
     const o = ORGANS[k];
-    return `<button class="organ-btn" type="button" data-organ="${k}" aria-pressed="false" aria-controls="panel" style="--c:${GROUP_COLOR[k]}"><i aria-hidden="true"></i>${esc(o.name)}</button>`;
+    return `<button class="organ-btn" type="button" data-organ="${k}" aria-pressed="false" aria-controls="panel"><span aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(o.name)}</button>`;
   }).join('');
+}
+
+const ORIGIN_LEVEL: Record<Origin, number> = { consumer: 1, 'authorised-wearable': 2, clinical: 3 };
+function originMark(o: Origin): string {
+  const n = ORIGIN_LEVEL[o];
+  const dots = [1, 2, 3].map((i) => `<b class="${i <= n ? 'on' : ''}"></b>`).join('');
+  return `<span class="origin" title="${esc(ORIGIN_HELP[o])}"><i aria-hidden="true">${dots}</i>${esc(ORIGIN_LABEL[o])}</span>`;
 }
 
 export function renderPanel(organ: Organ): string {
@@ -33,27 +40,25 @@ export function renderPanel(organ: Organ): string {
   const next = ORGANS[ORGAN_ORDER[(idx + 1) % ORGAN_ORDER.length]];
 
   return `
-  <div style="--c:${GROUP_COLOR[organ.key]}">
+  <div>
     <div class="p-head">
       <div>
-        <p class="p-kicker">${esc(organ.kicker)}</p>
+        <p class="p-index">${String(idx + 1).padStart(2, '0')} / ${String(ORGAN_ORDER.length).padStart(2, '0')}<span class="p-kick"> &nbsp;·&nbsp; ${esc(organ.kicker)}</span></p>
         <h2 class="p-title" id="panel-title">${esc(organ.name)}</h2>
       </div>
-      <div class="p-tools">
-        <button class="icon-btn" type="button" data-close aria-label="Close ${esc(organ.name)} and return to the full body">${ICON.close}</button>
-      </div>
+      <button class="close" type="button" data-close aria-label="Close ${esc(organ.name)} and return to the full body">${ICON.close}</button>
     </div>
     <p class="p-lede">${esc(organ.lede)}</p>
-    ${organ.key === 'heart' ? `<div class="p-ecg"><canvas data-ecg width="400" height="56" aria-hidden="true"></canvas><p>Illustrative waveform, not a recording · 64 bpm</p></div>` : ''}
+    ${organ.key === 'heart' ? `<div class="p-ecg"><canvas data-ecg width="400" height="64" aria-hidden="true"></canvas></div>` : ''}
 
     <section class="p-section" aria-labelledby="h-sig">
-      <h3 class="p-h" id="h-sig">Data it generates</h3>
+      <h3 class="p-h" id="h-sig">Signals</h3>
       <ul class="signals">
         ${organ.signals.map((s) => `
           <li>
             <span class="sig-name">${esc(s.name)}</span>
             <span class="sig-detail">${esc(s.detail)}</span>
-            <span class="chip chip-${s.origin}" title="${esc(ORIGIN_HELP[s.origin])}">${esc(ORIGIN_LABEL[s.origin])}</span>
+            ${originMark(s.origin)}
           </li>`).join('')}
       </ul>
     </section>
@@ -63,8 +68,7 @@ export function renderPanel(organ: Organ): string {
       ${organ.uses.map((u) => `
         <article class="use">
           <h4>${esc(u.title)}</h4>
-          <p class="use-product">${esc(u.product)}</p>
-          <p class="use-status">${esc(u.status)}</p>
+          <p class="use-meta"><b>${esc(u.product)}</b> · ${esc(u.status)}</p>
           <p class="use-body">${esc(u.body)}</p>
           ${u.stats.length ? `<div class="stats">${u.stats.map((s) => `
             <div class="stat"><span class="stat-v">${esc(s.value)}${cite(s.source)}</span><span class="stat-l">${esc(s.label)}</span></div>`).join('')}</div>` : ''}
@@ -72,7 +76,7 @@ export function renderPanel(organ: Organ): string {
     </section>
 
     <section class="p-section" aria-labelledby="h-lim">
-      <h3 class="p-h" id="h-lim">Clinical limits</h3>
+      <h3 class="p-h" id="h-lim">Limits</h3>
       <ul class="limits">
         ${organ.limits.map((l) => `<li>${esc(l.text)}${cite(l.source)}</li>`).join('')}
       </ul>
@@ -84,7 +88,7 @@ export function renderPanel(organ: Organ): string {
         ${organ.sources.map((s, i) => `
           <li id="src-${organ.key}-${i + 1}">
             <span><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>
-            <span class="src-meta">${esc(s.publisher)}<span class="kind">${esc(s.kind)}</span></span></span>
+            <span class="src-meta">${esc(s.publisher)} · ${esc(s.kind)}</span></span>
           </li>`).join('')}
       </ol>
     </section>
@@ -100,29 +104,27 @@ export function renderAbout(): string {
   const regions = ['European Union', 'United States'] as const;
   return `
   <div class="sheet-inner">
-    <button class="icon-btn sheet-close" type="button" data-close-dialog aria-label="Close">${ICON.close}</button>
-    <h2 id="about-title">Regulation &amp; method</h2>
+    <button class="close" type="button" data-close-dialog aria-label="Close">${ICON.close}</button>
+    <h2 id="about-title">Method</h2>
     <p>At Medica 2026 the argument was put plainly: as AI becomes entwined with physiological data, people become “data platforms”
       (<a href="${CONTEXT_SOURCES.medica.url}" target="_blank" rel="noopener noreferrer">${CONTEXT_SOURCES.medica.publisher}</a>).
-      This site maps what that means organ by organ, and how regulators on both sides of the Atlantic draw the lines.</p>
+      This site maps what that means organ by organ, and where regulators on both sides of the Atlantic draw the lines.</p>
     ${regions.map((r) => `
       <h3>${r}</h3>
       <div class="fw">
         ${FRAMEWORK.filter((f) => f.region === r).map((f) => `
           <div class="fw-item">
-            <small>${esc(f.source.kind)}</small>
             <h4>${esc(f.name)}</h4>
             <p>${esc(f.body)}</p>
             <a href="${esc(f.source.url)}" target="_blank" rel="noopener noreferrer">${esc(f.source.publisher)}</a>
           </div>`).join('')}
       </div>`).join('')}
-    <h3>Editorial method</h3>
-    <p>Every figure links to the page it came from, preferring peer-reviewed papers, regulators and medical societies. Figures reported by manufacturers are labelled as such.
-      Notifications, screening and triage are never described as diagnosis. Content was last reviewed on ${formatDate(LAST_REVIEWED)}.</p>
-    <p>On generative AI in healthcare, the World Health Organization lists more than 40 recommendations and warns about inaccurate outputs and automation bias
+    <h3>Editorial standard</h3>
+    <p>Every figure links to the page it came from, preferring peer-reviewed papers, regulators and medical societies; manufacturer figures are marked as such.
+      Notification, screening and triage are never presented as diagnosis. On generative AI, the World Health Organization’s guidance applies
       (<a href="${CONTEXT_SOURCES.who.url}" target="_blank" rel="noopener noreferrer">WHO, 2024</a>).</p>
-    <h3>About the figure</h3>
-    <p>The body is a procedural, generic figure generated in code, with no third-party anatomy model. Organ shapes and the ECG waveform are illustrative, not anatomical or recorded data.</p>
+    <h3>About this site</h3>
+    <p>The figure is generic and generated in code; organ shapes and the heart trace are illustrative. Educational content, not medical advice. No personal data is collected. Last reviewed ${formatDate(LAST_REVIEWED)}.</p>
   </div>`;
 }
 
@@ -130,11 +132,11 @@ export function renderLegend(): string {
   const origins: Origin[] = ['consumer', 'authorised-wearable', 'clinical'];
   return `
   <div class="sheet-inner">
-    <button class="icon-btn sheet-close" type="button" data-close-dialog aria-label="Close">${ICON.close}</button>
-    <h2 id="legend-title">Where the data comes from</h2>
-    <p>Wearables are the widest door into health data, but most of what they measure is wellness information. Each signal on this site is tagged with its origin.</p>
+    <button class="close" type="button" data-close-dialog aria-label="Close">${ICON.close}</button>
+    <h2 id="legend-title">Data origin</h2>
+    <p>Wearables are the widest door into health data, yet most of what they measure is wellness information. Every signal is marked on a three-step scale.</p>
     <ul class="legend-list">
-      ${origins.map((o) => `<li><span class="chip chip-${o}">${ORIGIN_LABEL[o]}</span><p>${ORIGIN_HELP[o]}</p></li>`).join('')}
+      ${origins.map((o) => `<li>${originMark(o)}<p>${ORIGIN_HELP[o]}</p></li>`).join('')}
     </ul>
   </div>`;
 }

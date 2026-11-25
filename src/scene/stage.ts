@@ -206,7 +206,7 @@ export class Stage {
     this.renderer.setSize(w, h, false);
     const pr = this.renderer.getPixelRatio();
     this.material.uniforms.uPixelRatio.value = pr * (h / 900);
-    this.material.uniforms.uMaxSize.value = 7 * pr;
+    this.material.uniforms.uMaxSize.value = 4.5 * pr;
     this.applyViewOffset();
     if (!this.focus || this.focus === 'blood') this.focusOn(this.focus);
   }

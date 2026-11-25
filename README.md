@@ -24,7 +24,7 @@ Deep links open an organ directly: `/#heart`, `/#eyes`, `/#brain`, `/#lungs`, `/
 | Body | Procedural figure from primitives (`src/scene/bodyGeometry.ts`) | Generic look and no third-party model licence |
 | Motion | Custom GLSL shader (`src/scene/particleMaterial.ts`) | Heartbeat, breathing, blood flow and the intro run on the GPU |
 | Content | Typed data files (`src/content/`) | Every claim carries its source and can be reviewed without touching code |
-| Fonts | Self-hosted via Fontsource | No requests to third-party font servers (GDPR) |
+| Fonts | Plus Jakarta Sans, self-hosted via Fontsource | No requests to third-party font servers (GDPR) |
 
 ### Performance
 
