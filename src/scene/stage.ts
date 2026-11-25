@@ -224,6 +224,13 @@ export class Stage {
     this.camera.updateProjectionMatrix();
   }
 
+  /** Highlight an organ without selecting it (used by the organ list on hover and focus). */
+  preview(organ: OrganKey | null) {
+    if (organ === this.hover) return;
+    this.hover = organ;
+    this.material.uniforms.uHover.value = organ ? GROUP[organ] : -1;
+  }
+
   private bindPointer() {
     const el = this.opts.canvas;
     let downAt = { x: 0, y: 0, t: 0 };
