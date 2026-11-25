@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0c0d" />
+    <meta name="color-scheme" content="dark" />
+    <title>HUDAP · Human Data Platform</title>
+    <meta name="description" content="An interactive map of the health data each organ generates, how AI turns it into clinical insight, and where wearables end and medical devices begin." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0c0d'/%3E%3Cpath d='M6 17h6l2-5 4 10 2-5h6' fill='none' stroke='%23ece9e2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <script type="module" crossorigin src="./assets/index-CH7TQtzy.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CnEixTRY.css">
+  </head>
+  <body>
+    <a class="skip" href="#organ-nav">Skip to organ list</a>
+    <div class="backdrop" aria-hidden="true"></div>
+    <canvas id="stage" aria-hidden="true"></canvas>
+
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="HUDAP home">
+        <span class="brand-name">HUDAP</span>
+        <span class="brand-rule" aria-hidden="true"></span>
+        <span class="brand-sub">Human Data Platform</span>
+      </a>
+      <nav class="topnav" aria-label="Site">
+        <button class="link" type="button" data-open="legend">Data origin</button>
+        <button class="link" type="button" data-open="about">Method</button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title">Your body is already <em>a data platform</em></h1>
+        <p class="hero-lede">
+          Every organ leaves a data trail. See what AI reads in it, and where wellness ends and medicine begins.
+        </p>
+      </section>
+
+      <nav class="organ-nav" id="organ-nav" aria-label="Organs"></nav>
+
+      <aside class="panel" id="panel" aria-labelledby="panel-title" hidden>
+        <div class="panel-grip" aria-hidden="true"></div>
+        <div class="panel-scroll" id="panel-body" tabindex="-1"></div>
+      </aside>
+
+      <div class="tooltip" id="tooltip" role="presentation" hidden></div>
+      <p class="sr-only" id="live" aria-live="polite"></p>
+      <noscript><p class="noscript">This experience needs JavaScript.</p></noscript>
+    </main>
+
+    <dialog class="sheet" id="about" aria-labelledby="about-title"></dialog>
+    <dialog class="sheet sheet-sm" id="legend" aria-labelledby="legend-title"></dialog>
+
+  </body>
+</html>
