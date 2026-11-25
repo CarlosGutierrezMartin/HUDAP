@@ -61,7 +61,7 @@ const vertex = /* glsl */ `
     float emphasis = max(focused, hovered * 0.7);
     float recede = hasFocus * (1.0 - focused);
 
-    float base = mix(1.0, 0.8, skin);
+    float base = mix(1.0, 0.72, skin);
     float size = uSize * base * (1.0 + 0.25 * emphasis) * (0.75 + 0.5 * aRand.y);
 
     // Blood: pulses travelling along the vessels.
@@ -73,7 +73,7 @@ const vertex = /* glsl */ `
     gl_PointSize = min(size * uPixelRatio * (1.0 / -mv.z), uMaxSize);
 
     vec3 col = uColors[int(g + 0.5)];
-    float alpha = 0.4 * skin + 0.55 * heart + 0.32 * isGroup(g, 2.0) + 0.17 * isGroup(g, 3.0) + 0.22 * lungs + 0.42 * blood;
+    float alpha = 0.26 * skin + 0.55 * heart + 0.2 * isGroup(g, 2.0) + 0.13 * isGroup(g, 3.0) + 0.19 * lungs + 0.34 * blood;
     // Fade dense organs as the camera approaches, so additive blending does not saturate.
     alpha *= mix(1.0, smoothstep(0.25, 1.6, -mv.z), 1.0 - skin);
     alpha *= 1.0 + mix(1.4, 0.5, heart) * emphasis + blood * pulse * 0.8 + heart * uBeat * 0.6 * uMotion;
@@ -93,7 +93,7 @@ const fragment = /* glsl */ `
     if (r > 0.5) discard;
     float soft = smoothstep(0.5, 0.2, r);
     float core = smoothstep(0.22, 0.0, r);
-    vec3 col = vColor + core * 0.12;
+    vec3 col = vColor + core * 0.04;
     gl_FragColor = vec4(col, vAlpha * (soft * 0.7 + core * 0.4));
   }
 `;

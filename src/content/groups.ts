@@ -15,12 +15,14 @@ export type OrganKey = Exclude<keyof typeof GROUP, 'skin'>;
  * and organs are told apart by density and light rather than hue.
  */
 export const GROUP_COLOR: Record<keyof typeof GROUP, string> = {
-  skin: '#bdb8ae',
+  // Skin is a dim warm graphite so the organs read as the light sources.
+  // Organs differ by luminance and a barely-there temperature shift, never by hue.
+  skin: '#8a857d',
   heart: '#e2584a',
-  eyes: '#f4f1ea',
-  brain: '#e8e4dc',
-  lungs: '#d9d5cc',
-  blood: '#cfc6b6',
+  eyes: '#e6e2d9',
+  brain: '#d8cfc0',
+  lungs: '#b2b8bd',
+  blood: '#c2b49c',
 };
 
 export const ORGAN_ORDER: OrganKey[] = ['heart', 'eyes', 'brain', 'lungs', 'blood'];
