@@ -75,6 +75,8 @@ function open(organ: OrganKey, trigger: HTMLElement | null) {
   if (trigger) lastTrigger = trigger;
   panelBody.innerHTML = renderPanel(ORGANS[organ]);
   panelBody.scrollTop = 0;
+  stage?.preview(null);
+  requestAnimationFrame(() => countUp(panelBody));
   panel.hidden = false;
   panel.classList.remove('is-expanded');
   requestAnimationFrame(() => panel.classList.add('is-open'));
@@ -103,6 +105,40 @@ function close() {
   history.replaceState(null, '', location.pathname + location.search);
   live.textContent = 'Returned to the full body.';
   lastTrigger?.focus({ preventScroll: true });
+}
+
+// Hovering or focusing an organ in the list lights it up on the body: cause and effect, no extra UI.
+const navOrgan = (e: Event) => (e.target as HTMLElement).closest<HTMLButtonElement>('[data-organ]')?.dataset.organ as OrganKey | undefined;
+nav.addEventListener('pointerover', (e) => { if (!current) stage?.preview(navOrgan(e) ?? null); });
+nav.addEventListener('pointerleave', () => { if (!current) stage?.preview(null); });
+nav.addEventListener('focusin', (e) => { if (!current) stage?.preview(navOrgan(e) ?? null); });
+nav.addEventListener('focusout', () => { if (!current) stage?.preview(null); });
+
+// Figures count up once when a panel opens, with tabular numerals and a reserved width so nothing shifts.
+function countUp(root: HTMLElement) {
+  if (reduceQuery.matches) return;
+  const els = [...root.querySelectorAll<HTMLElement>('.num')];
+  const parts = els.map((el) => [...(el.dataset.value ?? '').matchAll(/\d[\d,]*(?:\.\d+)?/g)].map((m) => m[0]));
+  const t0 = performance.now();
+  const dur = 700;
+  const step = (now: number) => {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    els.forEach((el, i) => {
+      let j = 0;
+      el.textContent = (el.dataset.value ?? '').replace(/\d[\d,]*(?:\.\d+)?/g, () => {
+        const raw = parts[i][j++];
+        const n = parseFloat(raw.replace(/,/g, ''));
+        const dec = (raw.split('.')[1] ?? '').length;
+        const v = n * e;
+        const s = raw.includes(',') ? Math.round(v).toLocaleString('en-US') : v.toFixed(dec);
+        // Pad with figure spaces (digit-wide) so the figure keeps its final width while it counts.
+        return s.padStart(raw.length, '\u2007');
+      });
+    });
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 nav.addEventListener('click', (e) => {

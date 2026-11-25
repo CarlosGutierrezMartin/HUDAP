@@ -42,17 +42,14 @@ export function renderPanel(organ: Organ): string {
   return `
   <div>
     <div class="p-head">
-      <div>
-        <p class="p-index">${String(idx + 1).padStart(2, '0')} / ${String(ORGAN_ORDER.length).padStart(2, '0')}<span class="p-kick"> &nbsp;·&nbsp; ${esc(organ.kicker)}</span></p>
-        <h2 class="p-title" id="panel-title">${esc(organ.name)}</h2>
-      </div>
+      <h2 class="p-title" id="panel-title">${esc(organ.name)}</h2>
       <button class="close" type="button" data-close aria-label="Close ${esc(organ.name)} and return to the full body">${ICON.close}</button>
     </div>
     <p class="p-lede">${esc(organ.lede)}</p>
     ${organ.key === 'heart' ? `<div class="p-ecg"><canvas data-ecg width="400" height="64" aria-hidden="true"></canvas></div>` : ''}
 
     <section class="p-section" aria-labelledby="h-sig">
-      <h3 class="p-h" id="h-sig">Signals</h3>
+      <h3 class="p-h" id="h-sig">Signals <span>${esc(organ.kicker.replace(/ · /g, ', ').toLowerCase())}</span></h3>
       <ul class="signals">
         ${organ.signals.map((s) => `
           <li>
@@ -71,7 +68,7 @@ export function renderPanel(organ: Organ): string {
           <p class="use-meta"><b>${esc(u.product)}</b> · ${esc(u.status)}</p>
           <p class="use-body">${esc(u.body)}</p>
           ${u.stats.length ? `<div class="stats">${u.stats.map((s) => `
-            <div class="stat"><span class="stat-v">${esc(s.value)}${cite(s.source)}</span><span class="stat-l">${esc(s.label)}</span></div>`).join('')}</div>` : ''}
+            <div class="stat"><span class="stat-v"><span class="num" data-value="${esc(s.value)}">${esc(s.value)}</span>${cite(s.source)}</span><span class="stat-l">${esc(s.label)}</span></div>`).join('')}</div>` : ''}
         </article>`).join('')}
     </section>
 
